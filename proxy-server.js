@@ -6,13 +6,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health check
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
-// Catch-all proxy handler
-app.all('*', async (req, res) => {
+// Catch-all proxy handler for ALL methods and paths
+app.use(async (req, res) => {
   try {
     const targetUrl = `https://api.binance.com${req.url}`;
     console.log(`[Proxy] ${req.method} ${targetUrl}`);
@@ -39,6 +39,6 @@ app.all('*', async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Proxy running on port ${port}`);
 });
