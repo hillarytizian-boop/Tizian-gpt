@@ -23,12 +23,16 @@ server.on('connect', (req, clientSocket, head) => {
   });
   
   serverSocket.on('error', (err) => {
-    console.error('Server socket error:', err);
+    if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+      console.error('Server socket error:', err.message);
+    }
     clientSocket.end();
   });
   
   clientSocket.on('error', (err) => {
-    console.error('Client socket error:', err);
+    if (err.code !== 'ECONNRESET' && err.code !== 'EPIPE') {
+      console.error('Client socket error:', err.message);
+    }
     serverSocket.end();
   });
 });
