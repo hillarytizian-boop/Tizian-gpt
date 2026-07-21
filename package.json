@@ -4,7 +4,5 @@
   "scripts": {
     "start": "node proxy-server.js"
   },
-  "dependencies": {
-    "http-proxy": "^1.18.1"
-  }
+  "dependencies": {}
 }
