@@ -1,30 +1,22 @@
-const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const http = require('http');
+const httpProxy = require('http-proxy');
 
-const app = express();
+const proxy = httpProxy.createProxyServer({});
 
-// Logging middleware
-app.use((req, res, next) => {
-  console.log(`[Proxy] ${req.method} ${req.url}`);
-  next();
+const server = http.createServer((req, res) => {
+  // Forward HTTP requests to Binance
+  proxy.web(req, res, { target: 'https://api.binance.com', changeOrigin: true });
 });
 
-// Proxy all requests to Binance API
-app.use(
-  '/',
-  createProxyMiddleware({
+// Handle CONNECT method (for HTTPS tunneling)
+server.on('connect', (req, socket, head) => {
+  proxy.proxyRequest(req, socket, head, {
     target: 'https://api.binance.com',
     changeOrigin: true,
-    secure: true,
-    logLevel: 'debug',
-    onError: (err, req, res) => {
-      console.error('[Proxy] Error:', err.message);
-      res.status(500).json({ error: 'Proxy error: ' + err.message });
-    },
-  })
-);
+  });
+});
 
 const port = process.env.PORT || 3000;
-app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Proxy running on port ${port}`);
+server.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 CONNECT proxy running on port ${port}`);
 });
